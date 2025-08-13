@@ -1,17 +1,17 @@
-# main.py
+# main.py (webhook receiver)
 import json
+import httpx
 from fastapi import FastAPI, Request, HTTPException
 
-from config import SUMMARY_FILE, LAST_PAYLOAD, WEBHOOK_SECRET
+from config import SUMMARY_FILE, LAST_PAYLOAD, WEBHOOK_SECRET, SUMMARY_FORWARD_URL
 from helper import (
-        save_json_safe, 
-        append_summary, 
-        verify_signature_if_present, 
-        get_first_present,
-        normalize_questions,
-        get_first_present,
-        normalize_questions
-    )
+    save_json_safe,
+    append_summary,
+    verify_signature_if_present,
+    get_first_present,
+    normalize_questions,
+)
+
 app1 = FastAPI()
 
 
@@ -25,7 +25,6 @@ async def end_call_webhook(request: Request):
     try:
         parsed = json.loads(body.decode("utf-8"))
     except Exception:
-        # not json -> store raw text
         parsed = {"raw_text": body.decode("utf-8", errors="replace")}
 
     save_json_safe(LAST_PAYLOAD, {"headers": headers, "body": parsed})
@@ -35,7 +34,7 @@ async def end_call_webhook(request: Request):
     if not verify_signature_if_present(WEBHOOK_SECRET, body, signature):
         raise HTTPException(status_code=403, detail="Invalid signature")
 
-    # attempt to extract fields from many possible key names
+    # candidate keys (kept same as your file)
     candidates_name = ["caller_name", "Caller Name", "name", "caller", "full_name", "user_name", "user"]
     candidates_email = ["caller_email", "Caller Email", "email", "user_email", "userEmail"]
     candidates_phone = ["caller_number", "Caller Number", "phone", "phone_number", "phoneNumber"]
@@ -54,8 +53,7 @@ async def end_call_webhook(request: Request):
     call_end = get_first_present(parsed, candidates_end) or ""
     brief = get_first_present(parsed, candidates_brief) or ""
     detailed = get_first_present(parsed, candidates_detailed) or ""
-    
-    # Handle questions specially since they might be structured differently
+
     raw_questions = get_first_present(parsed, candidates_questions)
     raw_actions = get_first_present(parsed, candidates_actions)
 
@@ -65,7 +63,7 @@ async def end_call_webhook(request: Request):
     # Build final summary object with consistent keys
     summary_obj = {
         "Caller Name": caller_name,
-        "Caller Email": caller_email, 
+        "Caller Email": caller_email,
         "Caller Number": caller_phone,
         "Call timing": f"{call_start} - {call_end}".strip(" - "),
         "Brief Summary": brief,
@@ -76,5 +74,18 @@ async def end_call_webhook(request: Request):
 
     append_summary(summary_obj)
     print("Saved summary:", summary_obj)
+
+    # Forward to external summary endpoint if configured
+    if SUMMARY_FORWARD_URL:
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(SUMMARY_FORWARD_URL, json=summary_obj)
+                if resp.status_code >= 400:
+                    print(f"Warning: forwarding summary returned status {resp.status_code}: {resp.text}")
+                else:
+                    print("Forwarded summary to", SUMMARY_FORWARD_URL)
+        except Exception as e:
+            # Log and continue — do not fail the webhook because forwarding failed
+            print(f"Error forwarding summary to {SUMMARY_FORWARD_URL}: {e}")
 
     return {"status": "success", "saved": summary_obj}

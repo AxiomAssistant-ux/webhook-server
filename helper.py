@@ -5,7 +5,8 @@ import hashlib
 import re
 from typing import Any
 
-from config import SUMMARY_FILE, LAST_PAYLOAD, WEBHOOK_SECRET
+from config import SUMMARY_FILE, LAST_PAYLOAD
+
 def save_json_safe(path: str, obj: Any):
     """Save JSON object to a file with UTF-8 encoding."""
     with open(path, "w", encoding="utf-8") as f:

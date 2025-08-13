@@ -1,21 +1,19 @@
 # main.py (webhook receiver)
+import os
 import json
-import httpx
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 
-from config import SUMMARY_FILE, LAST_PAYLOAD, WEBHOOK_SECRET, SUMMARY_FORWARD_URL
+from config import LAST_PAYLOAD, SUMMARY_FILE
 from helper import (
     save_json_safe,
     append_summary,
-    verify_signature_if_present,
     get_first_present,
     normalize_questions,
 )
 
-app1 = FastAPI()
+app = FastAPI()
 
-
-@app1.post("/end-call-webhook")
+@app.post("/end-call-webhook")
 async def end_call_webhook(request: Request):
     # read raw body and headers
     body = await request.body()
@@ -28,11 +26,6 @@ async def end_call_webhook(request: Request):
         parsed = {"raw_text": body.decode("utf-8", errors="replace")}
 
     save_json_safe(LAST_PAYLOAD, {"headers": headers, "body": parsed})
-
-    # verify HMAC signature if secret is set
-    signature = headers.get("elevenlabs-signature") or headers.get("ElevenLabs-Signature")
-    if not verify_signature_if_present(WEBHOOK_SECRET, body, signature):
-        raise HTTPException(status_code=403, detail="Invalid signature")
 
     # candidate keys (kept same as your file)
     candidates_name = ["caller_name", "Caller Name", "name", "caller", "full_name", "user_name", "user"]
@@ -75,17 +68,21 @@ async def end_call_webhook(request: Request):
     append_summary(summary_obj)
     print("Saved summary:", summary_obj)
 
-    # Forward to external summary endpoint if configured
-    if SUMMARY_FORWARD_URL:
-        try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                resp = await client.post(SUMMARY_FORWARD_URL, json=summary_obj)
-                if resp.status_code >= 400:
-                    print(f"Warning: forwarding summary returned status {resp.status_code}: {resp.text}")
-                else:
-                    print("Forwarded summary to", SUMMARY_FORWARD_URL)
-        except Exception as e:
-            # Log and continue — do not fail the webhook because forwarding failed
-            print(f"Error forwarding summary to {SUMMARY_FORWARD_URL}: {e}")
-
     return {"status": "success", "saved": summary_obj}
+
+@app.get("/summaries")
+async def get_summaries():
+    # Ensure the file exists
+    if not os.path.exists(SUMMARY_FILE):
+        return {"summaries": []}
+    
+    try:
+        with open(SUMMARY_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            # Guarantee it's a list
+            if not isinstance(data, list):
+                data = []
+    except Exception as e:
+        return {"error": f"Failed to read summaries: {str(e)}"}
+    
+    return {"summaries": data}

@@ -69,7 +69,7 @@ async def end_call_webhook(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save summary: {str(e)}")
 
-@app.get("/summaries")
+@app.get("/summary")
 async def get_summaries(limit: int = 50, skip: int = 0):
     """Fetch summaries with pagination to avoid timeouts."""
     try:

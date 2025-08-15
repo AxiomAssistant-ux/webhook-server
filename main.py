@@ -1,6 +1,6 @@
 import json
 from fastapi import FastAPI, Request, HTTPException
-from bson import ObjectId # Import ObjectId
+from bson import ObjectId
 
 from config import LAST_PAYLOAD
 from helper import (
@@ -16,12 +16,12 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup_event():
     """Connect to MongoDB on application startup."""
-    connect_to_mongo()
+    await connect_to_mongo()
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Disconnect from MongoDB on application shutdown."""
-    close_mongo_connection()
+    await close_mongo_connection()
 
 # Helper to convert ObjectId to string for JSON serialization
 def serialize_doc(doc):
@@ -36,7 +36,7 @@ async def end_call_webhook(request: Request):
         parsed = json.loads(body.decode("utf-8"))
     except json.JSONDecodeError:
         parsed = {"raw_text": body.decode("utf-8", errors="replace")}
-    
+
     save_json_safe(LAST_PAYLOAD, {"headers": dict(request.headers), "body": parsed})
 
     # Candidate keys for data extraction
@@ -50,7 +50,7 @@ async def end_call_webhook(request: Request):
     candidates_questions = ["questions_asked", "questions", "data_questions"]
     candidates_actions = ["action_items", "actions"]
 
-    # Extract data using helper functions
+    # Extract data
     summary_obj = {
         "Caller Name": get_first_present(parsed, candidates_name) or "",
         "Caller Email": get_first_present(parsed, candidates_email) or "",
@@ -64,20 +64,20 @@ async def end_call_webhook(request: Request):
 
     try:
         append_summary(summary_obj)
-        print("Saved summary:", summary_obj)
+        print("💾 Saved summary:", summary_obj)
         return {"status": "success", "saved": summary_obj}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save summary: {str(e)}")
 
-
 @app.get("/summaries")
-async def get_summaries():
-    """Fetch all summaries from the MongoDB collection."""
+async def get_summaries(limit: int = 50, skip: int = 0):
+    """Fetch summaries with pagination to avoid timeouts."""
     try:
         db = get_database()
-        summaries_cursor = db.summaries.find({})
-        # Convert cursor to list and serialize ObjectId
-        summaries_list = [serialize_doc(doc) for doc in summaries_cursor]
+        cursor = db.summaries.find({}).sort("_id", -1).skip(skip).limit(limit)
+        summaries_list = []
+        async for doc in cursor:
+            summaries_list.append(serialize_doc(doc))
         return {"summaries": summaries_list}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read summaries: {str(e)}")

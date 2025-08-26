@@ -1,0 +1,428 @@
+{
+  "headers": {
+    "host": "84299014ef29.ngrok-free.app",
+    "user-agent": "ElevenLabs/1.0",
+    "content-length": "10742",
+    "accept": "*/*",
+    "accept-encoding": "gzip, deflate",
+    "content-type": "application/json",
+    "elevenlabs-signature": "t=1756197306,v0=4a782604b266abb5f70c59c99557504998d0dae58d31558515f608d3a5011ad6",
+    "x-forwarded-for": "34.59.11.47",
+    "x-forwarded-host": "84299014ef29.ngrok-free.app",
+    "x-forwarded-proto": "https"
+  },
+  "body": {
+    "type": "post_call_transcription",
+    "event_timestamp": 1756197306,
+    "data": {
+      "agent_id": "agent_5501k38aw03zfgjrzzja7qej6c33",
+      "conversation_id": "conv_8901k3jr7n2neffbk3hgra2k9ese",
+      "status": "done",
+      "user_id": "490NeobJcGUx9ivdmPhbu5spet42",
+      "transcript": [
+        {
+          "role": "agent",
+          "message": "<emotion= \"warm\"/> Hi there! Thanks for calling McDonald's of Welburn Management HR.... You're speaking with Diana <break time=\"0.3s\"/ emotion=\"Cheerful\"> May I ask who I'm speaking with?",
+          "tool_calls": [],
+          "tool_results": [],
+          "feedback": null,
+          "llm_override": null,
+          "time_in_call_secs": 0,
+          "conversation_turn_metrics": null,
+          "rag_retrieval_info": null,
+          "llm_usage": null,
+          "interrupted": false,
+          "original_message": null,
+          "source_medium": null
+        },
+        {
+          "role": "user",
+          "message": "end call",
+          "tool_calls": [],
+          "tool_results": [],
+          "feedback": null,
+          "llm_override": null,
+          "time_in_call_secs": 0,
+          "conversation_turn_metrics": null,
+          "rag_retrieval_info": null,
+          "llm_usage": null,
+          "interrupted": false,
+          "original_message": null,
+          "source_medium": "text"
+        },
+        {
+          "role": "agent",
+          "message": "<emotion = \"warm\"/>Thanks for calling. Have a great rest of your day. <emotion = \"cheerful\"/> Take care.<action=\"whisper\"/> Goodbye!\n",
+          "tool_calls": [],
+          "tool_results": [],
+          "feedback": null,
+          "llm_override": null,
+          "time_in_call_secs": 4,
+          "conversation_turn_metrics": {
+            "metrics": {
+              "convai_llm_service_ttf_sentence": {
+                "elapsed_time": 0.7501250299974345
+              },
+              "convai_llm_service_ttfb": {
+                "elapsed_time": 0.6470997430005809
+              },
+              "convai_llm_service_tt_last_sentence": {
+                "elapsed_time": 0.8629263390030246
+              }
+            }
+          },
+          "rag_retrieval_info": null,
+          "llm_usage": {
+            "model_usage": {
+              "gemini-2.0-flash-lite": {
+                "input": {
+                  "tokens": 6100,
+                  "price": 0.0004575
+                },
+                "input_cache_read": {
+                  "tokens": 0,
+                  "price": 0.0
+                },
+                "input_cache_write": {
+                  "tokens": 0,
+                  "price": 0.0
+                },
+                "output_total": {
+                  "tokens": 34,
+                  "price": 1.0199999999999999e-05
+                }
+              }
+            }
+          },
+          "interrupted": false,
+          "original_message": null,
+          "source_medium": null
+        },
+        {
+          "role": "user",
+          "message": "goodbye",
+          "tool_calls": [],
+          "tool_results": [],
+          "feedback": null,
+          "llm_override": null,
+          "time_in_call_secs": 4,
+          "conversation_turn_metrics": null,
+          "rag_retrieval_info": null,
+          "llm_usage": null,
+          "interrupted": false,
+          "original_message": null,
+          "source_medium": "text"
+        },
+        {
+          "role": "agent",
+          "message": "<emotion = \"warm\"/>Thanks for calling. Have a great rest of your day. <emotion = \"cheerful\"/> Take care.<action=\"whisper\"/> Goodbye!\n",
+          "tool_calls": [],
+          "tool_results": [],
+          "feedback": null,
+          "llm_override": null,
+          "time_in_call_secs": 19,
+          "conversation_turn_metrics": {
+            "metrics": {
+              "convai_llm_service_ttf_sentence": {
+                "elapsed_time": 0.6672070049971808
+              },
+              "convai_llm_service_ttfb": {
+                "elapsed_time": 0.47107869100000244
+              },
+              "convai_llm_service_tt_last_sentence": {
+                "elapsed_time": 0.8006129039858934
+              }
+            }
+          },
+          "rag_retrieval_info": null,
+          "llm_usage": {
+            "model_usage": {
+              "gemini-2.0-flash-lite": {
+                "input": {
+                  "tokens": 6135,
+                  "price": 0.000460125
+                },
+                "input_cache_read": {
+                  "tokens": 0,
+                  "price": 0.0
+                },
+                "input_cache_write": {
+                  "tokens": 0,
+                  "price": 0.0
+                },
+                "output_total": {
+                  "tokens": 34,
+                  "price": 1.0199999999999999e-05
+                }
+              }
+            }
+          },
+          "interrupted": false,
+          "original_message": null,
+          "source_medium": null
+        }
+      ],
+      "metadata": {
+        "start_time_unix_secs": 1756197278,
+        "accepted_time_unix_secs": 1756197279,
+        "call_duration_secs": 25,
+        "cost": 87,
+        "deletion_settings": {
+          "deletion_time_unix_secs": null,
+          "deleted_logs_at_time_unix_secs": null,
+          "deleted_audio_at_time_unix_secs": null,
+          "deleted_transcript_at_time_unix_secs": null,
+          "delete_transcript_and_pii": false,
+          "delete_audio": false
+        },
+        "feedback": {
+          "overall_score": null,
+          "likes": 0,
+          "dislikes": 0
+        },
+        "authorization_method": "authorization_header",
+        "charging": {
+          "dev_discount": true,
+          "is_burst": false,
+          "tier": "creator",
+          "llm_usage": {
+            "irreversible_generation": {
+              "model_usage": {
+                "gemini-2.0-flash-lite": {
+                  "input": {
+                    "tokens": 12235,
+                    "price": 0.000917625
+                  },
+                  "input_cache_read": {
+                    "tokens": 0,
+                    "price": 0.0
+                  },
+                  "input_cache_write": {
+                    "tokens": 0,
+                    "price": 0.0
+                  },
+                  "output_total": {
+                    "tokens": 68,
+                    "price": 2.0399999999999998e-05
+                  }
+                }
+              }
+            },
+            "initiated_generation": {
+              "model_usage": {
+                "gemini-2.0-flash-lite": {
+                  "input": {
+                    "tokens": 12235,
+                    "price": 0.000917625
+                  },
+                  "input_cache_read": {
+                    "tokens": 0,
+                    "price": 0.0
+                  },
+                  "input_cache_write": {
+                    "tokens": 0,
+                    "price": 0.0
+                  },
+                  "output_total": {
+                    "tokens": 68,
+                    "price": 2.0399999999999998e-05
+                  }
+                }
+              }
+            }
+          },
+          "llm_price": 0.000938025,
+          "llm_charge": 4,
+          "call_charge": 83
+        },
+        "phone_call": null,
+        "batch_call": null,
+        "termination_reason": "Client disconnected: 1005",
+        "error": null,
+        "main_language": "en",
+        "rag_usage": null,
+        "text_only": true,
+        "features_usage": {
+          "language_detection": {
+            "enabled": true,
+            "used": false
+          },
+          "transfer_to_agent": {
+            "enabled": false,
+            "used": false
+          },
+          "transfer_to_number": {
+            "enabled": false,
+            "used": false
+          },
+          "multivoice": {
+            "enabled": true,
+            "used": false
+          },
+          "dtmf_tones": {
+            "enabled": false,
+            "used": false
+          },
+          "external_mcp_servers": {
+            "enabled": false,
+            "used": false
+          },
+          "pii_zrm_workspace": false,
+          "pii_zrm_agent": false,
+          "tool_dynamic_variable_updates": {
+            "enabled": false,
+            "used": false
+          },
+          "is_livekit": false,
+          "voicemail_detection": {
+            "enabled": true,
+            "used": false
+          },
+          "workflow": {
+            "enabled": false,
+            "tool_node": {
+              "enabled": false,
+              "used": false
+            }
+          },
+          "agent_testing": {
+            "enabled": false,
+            "tests_ran_after_last_modification": false,
+            "tests_ran_in_last_7_days": true
+          }
+        },
+        "eleven_assistant": {
+          "is_eleven_assistant": false
+        },
+        "initiator_id": "490NeobJcGUx9ivdmPhbu5spet42",
+        "conversation_initiation_source": "react_sdk",
+        "conversation_initiation_source_version": "0.5.0",
+        "timezone": null
+      },
+      "analysis": {
+        "evaluation_criteria_results": {
+          "evaluation": {
+            "criteria_id": "evaluation",
+            "result": "failure",
+            "rationale": "The user ended the call almost immediately after the agent introduced themselves. Therefore, no HR-related questions were asked or answered."
+          }
+        },
+        "data_collection_results": {
+          "Action Items": {
+            "data_collection_id": "Action Items",
+            "value": null,
+            "json_schema": {
+              "type": "string",
+              "description": "From the summary list all the action items that must be performed by the admin\nexample of this is (e.g. a person asks the  agent for personal payslip which it cannot provide so it confirms form user and escalates to courtney that type of requests will be action item ) the action items will be similar to the examples",
+              "dynamic_variable": "",
+              "constant_value": ""
+            },
+            "rationale": "The conversation is very short and ends abruptly. The user calls and then immediately ends the call. There are no action items for the admin to perform based on this conversation."
+          },
+          "Caller Email": {
+            "data_collection_id": "Caller Email",
+            "value": "Not Mentioned",
+            "json_schema": {
+              "type": "string",
+              "description": "From the transcript, what is the persons Email? If it is not mentioned, respond with 'Not Mentioned'. Go through the entire transcript for better result",
+              "dynamic_variable": "",
+              "constant_value": ""
+            },
+            "rationale": "The transcript does not contain any email address. Therefore, the response is 'Not Mentioned'."
+          },
+          "questions_asked": {
+            "data_collection_id": "questions_asked",
+            "value": "May I ask who I'm speaking with?",
+            "json_schema": {
+              "type": "string",
+              "description": "From the Transcript go through entirely of it and list all the questions the caller has asked the agent during entirely of the call",
+              "dynamic_variable": "",
+              "constant_value": ""
+            },
+            "rationale": "The user asked one question: \"May I ask who I'm speaking with?\""
+          },
+          "brief_summary": {
+            "data_collection_id": "brief_summary",
+            "value": "A user called McDonald's HR and immediately ended the call after the agent asked for their name. The agent then ended the call.",
+            "json_schema": {
+              "type": "string",
+              "description": "From the transcript, summarize the entirely of the thing in 2-3 lines",
+              "dynamic_variable": "",
+              "constant_value": ""
+            },
+            "rationale": "The conversation is a short call to McDonald's HR where the user immediately ends the call after the agent asks for their name. The agent then says goodbye."
+          },
+          "Detailed Summary": {
+            "data_collection_id": "Detailed Summary",
+            "value": "The transcript depicts a brief phone call to McDonald's of Welburn Management HR. Diana, the agent, greets the caller and asks for their name. The caller immediately ends the call. Diana then says goodbye, and after the user also says goodbye, Diana repeats the goodbye message.",
+            "json_schema": {
+              "type": "string",
+              "description": "From the transcript, summarize the entirely of transcript in a detailed format, explain the entire thing in detail",
+              "dynamic_variable": "",
+              "constant_value": ""
+            },
+            "rationale": "The transcript shows a call to McDonald's of Welburn Management HR. The agent, Diana, answers the call and asks for the caller's name. The user immediately ends the call. The agent then says goodbye. The user says goodbye and the agent repeats the goodbye message."
+          },
+          "caller_name": {
+            "data_collection_id": "caller_name",
+            "value": "Not Mentioned",
+            "json_schema": {
+              "type": "string",
+              "description": "From the transcript, what is the client's name? If it is not mentioned, respond with 'Not Mentioned'. Go through the entire transcript for better result",
+              "dynamic_variable": "",
+              "constant_value": ""
+            },
+            "rationale": "The agent asks for the caller's name, but the user immediately ends the call. Therefore, the client's name is not mentioned in the transcript."
+          },
+          "caller_number": {
+            "data_collection_id": "caller_number",
+            "value": "Not Mentioned",
+            "json_schema": {
+              "type": "string",
+              "description": "From the transcript, what is the client's phone/contact number? If it is not mentioned, respond with 'Not Mentioned'. Go through the entire transcript for better result",
+              "dynamic_variable": "",
+              "constant_value": ""
+            },
+            "rationale": "The user's phone number is not mentioned in the transcript. Therefore, the response is 'Not Mentioned'."
+          }
+        },
+        "call_successful": "failure",
+        "transcript_summary": "The AI agent, Diana from McDonald's HR, greeted the user warmly. The user ended the call abruptly after being asked for their name. The agent then ended the call.\n",
+        "call_summary_title": "Abrupt call termination"
+      },
+      "conversation_initiation_client_data": {
+        "conversation_config_override": {
+          "tts": {
+            "voice_id": null
+          },
+          "conversation": {
+            "text_only": true
+          },
+          "agent": {
+            "first_message": null,
+            "language": "en",
+            "prompt": null
+          }
+        },
+        "custom_llm_extra_body": {},
+        "user_id": "490NeobJcGUx9ivdmPhbu5spet42",
+        "source_info": {
+          "source": "react_sdk",
+          "version": "0.5.0"
+        },
+        "dynamic_variables": {
+          "system__agent_id": "agent_5501k38aw03zfgjrzzja7qej6c33",
+          "system__current_agent_id": "agent_5501k38aw03zfgjrzzja7qej6c33",
+          "system__conversation_id": "conv_8901k3jr7n2neffbk3hgra2k9ese",
+          "system__caller_id": null,
+          "system__called_number": null,
+          "system__call_duration_secs": 24,
+          "system__time_utc": "2025-08-26T08:35:03.620768+00:00",
+          "system__time": "Tuesday, 08:35 26 August 2025",
+          "system__timezone": null,
+          "system__call_sid": null
+        }
+      }
+    }
+  }
+}

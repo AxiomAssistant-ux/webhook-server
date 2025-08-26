@@ -1,86 +1,167 @@
 # helper.py
 import json
 import re
-from typing import Any, List
+from copy import deepcopy
+from typing import Any, Iterable, List, Mapping, Optional
+
 from db import get_database
 
+
 def save_json_safe(path: str, obj: Any):
-    """Save a JSON object to a file (used for last_payload.json)."""
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, indent=2, ensure_ascii=False)
 
-async def append_summary(summary_obj: dict):
-    """Append a summary object to the 'summaries' collection (async, Motor)."""
-    try:
-        db = get_database()
-        await db.summaries.insert_one(summary_obj)
-        print("💾 Summary appended to MongoDB (Motor).")
-    except Exception as e:
-        print(f"Error appending summary: {e}")
-        raise
 
-def get_first_present(d: dict, candidates: List[str]):
-    """Return first non-empty value among keys (case-insensitive, nested)."""
-    if not isinstance(d, dict):
-        return None
+async def append_summary(summary_obj: dict) -> str:
+    """
+    Insert a summary into MongoDB.
+    NOTE: caller must provide already-flattened strings/arrays.
+    """
+    db = get_database()
+    doc = deepcopy(summary_obj)  # avoid in-place _id injection
+    result = await db.summaries.insert_one(doc)
+    return str(result.inserted_id)
 
-    lowered = {k.lower(): v for k, v in d.items()}
 
-    for c in candidates:
-        if not c:
-            continue
-        if c in d:
-            return extract_value_from_structured_data(d[c])
-        if c.lower() in lowered:
-            return extract_value_from_structured_data(lowered[c.lower()])
+# ---------- Extraction utilities ----------
 
-    # Common nested containers
-    for container in ("data", "extracted", "extraction", "result", "payload"):
-        if container in d and isinstance(d[container], dict):
-            val = get_first_present(d[container], candidates)
-            if val not in (None, "", []):
-                return val
+def _walk_values(obj: Any) -> Iterable[tuple[str, Any]]:
+    """Yield (lowercased_key, value) pairs recursively for dict/list payloads."""
+    if isinstance(obj, Mapping):
+        for k, v in obj.items():
+            if isinstance(v, (dict, list, tuple)):
+                yield from _walk_values(v)
+            yield (str(k).lower(), v)
+    elif isinstance(obj, (list, tuple)):
+        for item in obj:
+            yield from _walk_values(item)
 
-    # Recurse nested dicts
-    for v in d.values():
-        if isinstance(v, dict):
-            val = get_first_present(v, candidates)
-            if val not in (None, "", []):
-                return val
 
+def get_first_present(payload: Any, candidate_keys: List[str]) -> Optional[Any]:
+    """Return the first value whose KEY matches a candidate (case-insensitive)."""
+    wants = {c.lower(): c for c in candidate_keys}
+    for k_norm, v in _walk_values(payload):
+        if k_norm in wants:
+            return v
     return None
 
-def extract_value_from_structured_data(data: Any):
-    """Extract usable value from nested structures."""
-    if data is None or data == "":
-        return ""
-    if isinstance(data, (str, int, float, bool)):
-        return data
-    if isinstance(data, dict):
-        if 'value' in data and data['value'] not in (None, ""):
-            return extract_value_from_structured_data(data['value'])
-        for key in ['content', 'text', 'result', 'data']:
-            if key in data and data[key] not in (None, ""):
-                return extract_value_from_structured_data(data[key])
-    if isinstance(data, list):
-        return data
-    return ""
 
-def normalize_questions(raw: Any) -> List[str]:
-    """Convert various question formats into a clean list of strings."""
-    if not raw:
+# ---------- Coercion to the exact shape you want ----------
+
+_PREFERRED_VALUE_KEYS = (
+    "value", "text", "string", "content", "email", "name", "phone", "number"
+)
+
+def to_str(x: Any) -> str:
+    """Coerce any value (dict/list/number/None) into a clean string."""
+    if x is None:
+        return ""
+    if isinstance(x, (str, int, float, bool)):
+        s = str(x).strip()
+        return s
+
+    if isinstance(x, Mapping):
+        # Prefer common payload shapes: {..., "value": "...", ...}
+        for key in _PREFERRED_VALUE_KEYS:
+            if key in x:
+                s = to_str(x[key])
+                if s:
+                    return s
+        # Otherwise, pick the first non-empty string we can derive from values
+        for v in x.values():
+            s = to_str(v)
+            if s:
+                return s
+        return ""
+
+    if isinstance(x, (list, tuple)):
+        # Return first non-empty scalar string we can find
+        for item in x:
+            s = to_str(item)
+            if s:
+                return s
+        return ""
+
+    # Fallback
+    try:
+        return str(x).strip()
+    except Exception:
+        return ""
+
+
+_BULLET_SPLITS = [
+    r"(?:\r?\n|\r)\s*(?:[\*\-]\s+)",  # - item / * item
+    r"(?:\r?\n|\r)\s*\d+\.\s+",       # 1. item
+]
+
+def _split_bullets(s: str) -> List[str]:
+    s = s.strip()
+    if not s:
         return []
-    if isinstance(raw, list):
-        return [str(item).strip() for item in raw if str(item).strip()]
-    if isinstance(raw, str):
-        if "*" in raw:
-            items = [q.strip() for q in re.split(r'\s*\*\s*', raw) if q.strip()]
-            return items
-        if re.match(r'^\d+\.', raw.strip()):
-            items = [q.strip() for q in re.split(r'\d+\.\s*', raw) if q.strip()]
-            return items
-        lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
-        if len(lines) > 1:
-            return lines
-        return [raw.strip()] if raw.strip() else []
-    return []
+    # Try bullets
+    for pat in _BULLET_SPLITS:
+        parts = re.split(pat, s)
+        parts = [p.strip() for p in parts if p and p.strip()]
+        if len(parts) > 1:
+            return parts
+    # Try newlines
+    lines = [ln.strip() for ln in re.split(r"\r?\n|\r", s) if ln.strip()]
+    if len(lines) > 1:
+        return lines
+    # Single item
+    return [s]
+
+
+def to_str_list(x: Any) -> List[str]:
+    """
+    Coerce any value into a list[str].
+    - If dict with 'value' key containing list → flatten to strings.
+    - If list of dicts/strings → flatten to strings.
+    - If string with bullets/newlines → split.
+    - Else → [] or single-item list.
+    """
+    if x is None:
+        return []
+
+    if isinstance(x, Mapping):
+        # If dict holds a meaningful list in 'value' or common keys
+        if "value" in x:
+            v = x["value"]
+            return to_str_list(v)
+        for key in ("items", "list", "questions", "action_items"):
+            if key in x:
+                return to_str_list(x[key])
+        # Fallback: treat as scalar text
+        s = to_str(x)
+        return _split_bullets(s) if s else []
+
+    if isinstance(x, (list, tuple)):
+        out: List[str] = []
+        for item in x:
+            if isinstance(item, Mapping):
+                if "value" in item:
+                    out.extend(to_str_list(item["value"]))
+                else:
+                    s = to_str(item)
+                    if s:
+                        out.extend(_split_bullets(s))
+            else:
+                s = to_str(item)
+                if s:
+                    out.extend(_split_bullets(s))
+        # Deduplicate and keep order
+        seen = set()
+        cleaned = []
+        for s in out:
+            ss = s.strip()
+            if ss and ss not in seen:
+                seen.add(ss)
+                cleaned.append(ss)
+        return cleaned
+
+    if isinstance(x, (str, int, float, bool)):
+        return _split_bullets(str(x))
+
+    # Fallback
+    s = to_str(x)
+    return _split_bullets(s) if s else []
